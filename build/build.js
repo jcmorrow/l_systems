@@ -62,23 +62,51 @@ var Shapes = (function () {
     };
     return Shapes;
 }());
+var forward = function () {
+    line(0, 0, LINE_SIZE, 0);
+    translate(LINE_SIZE, 0);
+};
+var pushGlobal = function () { return push(); };
+var popGlobal = function () { return pop(); };
+var turnRight = function () { return rotate(ANGLE); };
+var turnLeft = function () { return rotate(-ANGLE); };
+var ANGLE = (25.0 * (Math.PI * 2.0)) / 360.0;
+var LINE_SIZE = 5.0;
+var system = "X";
+var RULES = {
+    F: forward,
+    "+": turnRight,
+    "-": turnLeft,
+    "[": pushGlobal,
+    "]": popGlobal
+};
+var TRANSFORMS = {
+    F: "FF",
+    X: "F+[[X]-X]-F[-FX]+X"
+};
+var MAX_STEPS = 20;
+var step = 0;
+var executeRule = function (rule) {
+    if (hasKey(RULES, rule)) {
+        RULES[rule]();
+    }
+};
+var expandRule = function (rule) {
+    if (hasKey(TRANSFORMS, rule)) {
+        return TRANSFORMS[rule];
+    }
+    else {
+        return rule;
+    }
+};
 function setup() {
     frameRate(1);
     createCanvas(windowWidth, windowHeight);
     rectMode(CENTER);
 }
-var ANGLE = (Math.PI * 2.0) / 3.0;
-var LINE_SIZE = 2.0;
-var forward = function () {
-    line(0, 0, LINE_SIZE, 0);
-    translate(LINE_SIZE, 0);
-};
-var turnLeft = function () { return rotate(ANGLE); };
-var turnRight = function () { return rotate(-ANGLE); };
-var step = 0;
-var system = "F-G-G";
 function draw() {
-    translate(windowWidth / 2.0, windowHeight / 2.0);
+    translate(windowWidth / 2.0, windowHeight);
+    rotate(-Math.PI / 2.0);
     var newSystem = "";
     for (var _i = 0, system_1 = system; _i < system_1.length; _i++) {
         var part = system_1[_i];
@@ -88,33 +116,11 @@ function draw() {
     system = newSystem;
     step += 1;
     console.log(step);
-    if (step > 7) {
+    if (step >= MAX_STEPS) {
         noLoop();
     }
 }
-var executeRule = function (rule) {
-    if (rule == "F") {
-        forward();
-    }
-    else if (rule == "G") {
-        forward();
-    }
-    else if (rule == "+") {
-        turnLeft();
-    }
-    else if (rule == "-") {
-        turnRight();
-    }
-};
-var expandRule = function (rule) {
-    if (rule == "F") {
-        return "F-G+F+G-F";
-    }
-    else if (rule == "G") {
-        return "GG";
-    }
-    else {
-        return rule;
-    }
-};
+function hasKey(obj, key) {
+    return key in obj;
+}
 //# sourceMappingURL=build.js.map
