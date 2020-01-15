@@ -14,8 +14,10 @@ const turnLeft = () => rotate(-ANGLE);
 // start : X
 // rules : (X → F+[[X]-X]-F[-FX]+X), (F → FF)
 // angle : 25°
+//
+const degreesToRadians = (degrees: number) => (degrees / 360.0) * Math.PI * 2.0;
 
-const ANGLE = (25.0 * (Math.PI * 2.0)) / 360.0;
+const ANGLE = degreesToRadians(35.0);
 const LINE_SIZE = 5.0;
 let system: string = "X";
 
@@ -26,11 +28,12 @@ let RULES = {
   "[": pushGlobal,
   "]": popGlobal
 };
+
 let TRANSFORMS = {
-  F: "FF",
-  X: "F+[[X]-X]-F[-FX]+X"
+  F: "FFFX",
+  X: "F+[[+XFFX]-X]-F[-FX]+X"
 };
-let MAX_STEPS = 20;
+let MAX_STEPS = 7;
 
 /* ---------------------------------------------------------------------------*/
 let step: number = 0;
@@ -56,7 +59,7 @@ function setup() {
 }
 
 function draw() {
-  translate(windowWidth / 2.0, windowHeight);
+  translate(windowWidth / 2.0, windowHeight / 2.0);
   rotate(-Math.PI / 2.0);
   let newSystem: string = "";
   for (let part of system) {

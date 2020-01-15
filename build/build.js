@@ -70,7 +70,8 @@ var pushGlobal = function () { return push(); };
 var popGlobal = function () { return pop(); };
 var turnRight = function () { return rotate(ANGLE); };
 var turnLeft = function () { return rotate(-ANGLE); };
-var ANGLE = (25.0 * (Math.PI * 2.0)) / 360.0;
+var degreesToRadians = function (degrees) { return (degrees / 360.0) * Math.PI * 2.0; };
+var ANGLE = degreesToRadians(35.0);
 var LINE_SIZE = 5.0;
 var system = "X";
 var RULES = {
@@ -81,10 +82,10 @@ var RULES = {
     "]": popGlobal
 };
 var TRANSFORMS = {
-    F: "FF",
-    X: "F+[[X]-X]-F[-FX]+X"
+    F: "FFFX",
+    X: "F+[[+XFFX]-X]-F[-FX]+X"
 };
-var MAX_STEPS = 20;
+var MAX_STEPS = 7;
 var step = 0;
 var executeRule = function (rule) {
     if (hasKey(RULES, rule)) {
@@ -105,7 +106,7 @@ function setup() {
     rectMode(CENTER);
 }
 function draw() {
-    translate(windowWidth / 2.0, windowHeight);
+    translate(windowWidth / 2.0, windowHeight / 2.0);
     rotate(-Math.PI / 2.0);
     var newSystem = "";
     for (var _i = 0, system_1 = system; _i < system_1.length; _i++) {
