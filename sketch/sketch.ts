@@ -1,87 +1,88 @@
-const forward = () => {
-  stroke("rgba(0,0,0,0.25)");
-  line(0, 0, LINE_SIZE, 0);
-  translate(LINE_SIZE, 0);
-};
-const pushGlobal = () => push();
-const popGlobal = () => pop();
-const turnRight = () => rotate(ANGLE);
-const turnLeft = () => rotate(-ANGLE);
+interface Vector {
+  x: number;
+  y: number;
+}
 
-/* ---------------------------------------------------------------------------*/
-
-// variables : X F
-// constants : + − [ ]
-// start : X
-// rules : (X → F+[[X]-X]-F[-FX]+X), (F → FF)
-// angle : 25°
-
-const START = "F";
-let ANGLE = (90.0 * (Math.PI * 2.0)) / 360.0;
-const LINE_SIZE = 8.0;
-let system = START;
-
-const increaseAngle = () => (ANGLE += 0.01);
-const decreaseAngle = () => (ANGLE -= 0.01);
-
-let RULES = {
-  F: forward,
-  "+": turnRight,
-  "-": turnLeft,
-  "[": pushGlobal,
-  "]": popGlobal,
-  "(": decreaseAngle,
-  ")": increaseAngle
+const addVec = (vec1: Vector, vec2: Vector): Vector => {
+  return { x: vec1.x + vec2.x, y: vec1.y + vec2.y };
 };
 
-let TRANSFORMS = {
-  F: "F(−F+F",
-  "-": "A",
-  A: ")B",
-  B: "A"
+const subVec = (vec1: Vector, vec2: Vector): Vector => {
+  return { x: vec1.x - vec2.x, y: vec1.y - vec2.y };
 };
-let MAX_STEPS = 13;
 
-/* ---------------------------------------------------------------------------*/
-let step: number = 0;
+const magnitude = (vec: Vector): number => {
+  return Math.sqrt(vec.x ** 2 + vec.y ** 2);
+};
 
-let executeRule = (rule: string) => {
-  if (hasKey(RULES, rule)) {
-    RULES[rule]();
+class Particle {
+  public velocity: Vector;
+  constructor(public position: Vector) {
+    this.velocity = { x: 0, y: 0 };
   }
-};
 
-let expandRule: (rule: string) => string = (rule: string) => {
-  if (hasKey(TRANSFORMS, rule)) {
-    return TRANSFORMS[rule];
-  } else {
-    return rule;
+  accelerate(v: Vector) {
+    this.velocity = addVec(this.velocity, v);
   }
-};
+
+  move() {
+    this.position = addVec(this.velocity, this.position);
+  }
+}
+
+interface Force {
+  forceAt(x: number, y: number, t: number): Vector;
+}
+
+class Gravity implements Force {
+  forceAt(x: number, y: number, t: number) {
+    return { x: 0, y: 0.001 };
+  }
+}
+
+class Attractor implements Force {
+  constructor(public position: Vector) {}
+
+  forceAt(x: number, y: number, t: number) {
+    let r = subVec({ x, y }, this.position);
+    let forceScalar = 0.75 / magnitude(r) ** 2;
+    return { x: -r.x * forceScalar, y: -r.y * forceScalar };
+  }
+}
+
+const MAX_VELOCITY = 50.0;
+const PARTICLE_COUNT = 100;
+const FORCES = [
+  new Gravity(),
+  new Attractor({ x: 50, y: 0 }),
+  new Attractor({ x: 250, y: 100 })
+];
+let t = 0;
+
+let particles = Array.from(
+  Array(PARTICLE_COUNT).keys(),
+  () =>
+    new Particle({
+      x: Math.random() * 1000.0 - 500.0,
+      y: Math.random() * 1000.0 - 500.0
+    })
+);
 
 function setup() {
-  frameRate(1);
   createCanvas(windowWidth, windowHeight);
   rectMode(CENTER);
 }
 
 function draw() {
+  strokeWeight(2);
   translate(windowWidth / 2.0, windowHeight / 2.0);
-  rotate(-Math.PI / 2.0);
-  let newSystem: string = "";
-  for (let part of system) {
-    executeRule(part);
-    newSystem = newSystem + expandRule(part);
+  for (let p of particles) {
+    for (let force of FORCES) {
+      p.accelerate(force.forceAt(p.position.x, p.position.y, t));
+    }
+    p.move();
+    stroke(`rgba(0, 0, 0, ${magnitude(p.velocity) / MAX_VELOCITY})`);
+    point(p.position.x, p.position.y);
   }
-
-  system = newSystem;
-  step += 1;
-
-  if (step >= MAX_STEPS) {
-    noLoop();
-  }
-}
-
-function hasKey<O>(obj: O, key: keyof any): key is keyof O {
-  return key in obj;
+  t += 1;
 }
