@@ -63,6 +63,7 @@ var Shapes = (function () {
     return Shapes;
 }());
 var forward = function () {
+    stroke("rgba(0,0,0,0.05)");
     line(0, 0, LINE_SIZE, 0);
     translate(LINE_SIZE, 0);
 };
@@ -70,8 +71,8 @@ var pushGlobal = function () { return push(); };
 var popGlobal = function () { return pop(); };
 var turnRight = function () { return rotate(ANGLE); };
 var turnLeft = function () { return rotate(-ANGLE); };
-var ANGLE = (25.0 * (Math.PI * 2.0)) / 360.0;
-var LINE_SIZE = 5.0;
+var ANGLE = (15.0 * (Math.PI * 2.0)) / 360.0;
+var LINE_SIZE = 8.0;
 var system = "X";
 var RULES = {
     F: forward,
@@ -81,10 +82,12 @@ var RULES = {
     "]": popGlobal
 };
 var TRANSFORMS = {
-    F: "FF",
-    X: "F+[[X]-X]-F[-FX]+X"
+    F: "F+-F-+",
+    X: "F[F+[X]]+[FX]-",
+    "-": "++[F--F]",
+    "+": "--[F++F]"
 };
-var MAX_STEPS = 20;
+var MAX_STEPS = 9;
 var step = 0;
 var executeRule = function (rule) {
     if (hasKey(RULES, rule)) {
@@ -115,7 +118,6 @@ function draw() {
     }
     system = newSystem;
     step += 1;
-    console.log(step);
     if (step >= MAX_STEPS) {
         noLoop();
     }

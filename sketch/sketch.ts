@@ -1,4 +1,5 @@
 const forward = () => {
+  stroke("rgba(0,0,0,0.05)");
   line(0, 0, LINE_SIZE, 0);
   translate(LINE_SIZE, 0);
 };
@@ -9,14 +10,14 @@ const turnLeft = () => rotate(-ANGLE);
 
 /* ---------------------------------------------------------------------------*/
 
-//    variables : X F
+// variables : X F
 // constants : + − [ ]
 // start : X
 // rules : (X → F+[[X]-X]-F[-FX]+X), (F → FF)
 // angle : 25°
 
-const ANGLE = (25.0 * (Math.PI * 2.0)) / 360.0;
-const LINE_SIZE = 5.0;
+const ANGLE = (15.0 * (Math.PI * 2.0)) / 360.0;
+const LINE_SIZE = 8.0;
 let system: string = "X";
 
 let RULES = {
@@ -26,11 +27,14 @@ let RULES = {
   "[": pushGlobal,
   "]": popGlobal
 };
+
 let TRANSFORMS = {
-  F: "FF",
-  X: "F+[[X]-X]-F[-FX]+X"
+  F: "F+-F-+",
+  X: "F[F+[X]]+[FX]-",
+  "-": "++[F--F]",
+  "+": "--[F++F]"
 };
-let MAX_STEPS = 20;
+let MAX_STEPS = 9;
 
 /* ---------------------------------------------------------------------------*/
 let step: number = 0;
@@ -63,9 +67,10 @@ function draw() {
     executeRule(part);
     newSystem = newSystem + expandRule(part);
   }
+
   system = newSystem;
   step += 1;
-  console.log(step);
+
   if (step >= MAX_STEPS) {
     noLoop();
   }
