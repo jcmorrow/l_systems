@@ -1,5 +1,5 @@
 const forward = () => {
-  stroke("rgba(0,0,0,0.05)");
+  stroke("rgba(0,0,0,0.25)");
   line(0, 0, LINE_SIZE, 0);
   translate(LINE_SIZE, 0);
 };
@@ -16,25 +16,31 @@ const turnLeft = () => rotate(-ANGLE);
 // rules : (X → F+[[X]-X]-F[-FX]+X), (F → FF)
 // angle : 25°
 
-const ANGLE = (15.0 * (Math.PI * 2.0)) / 360.0;
+const START = "F";
+let ANGLE = (90.0 * (Math.PI * 2.0)) / 360.0;
 const LINE_SIZE = 8.0;
-let system: string = "X";
+let system = START;
+
+const increaseAngle = () => (ANGLE += 0.01);
+const decreaseAngle = () => (ANGLE -= 0.01);
 
 let RULES = {
   F: forward,
   "+": turnRight,
   "-": turnLeft,
   "[": pushGlobal,
-  "]": popGlobal
+  "]": popGlobal,
+  "(": decreaseAngle,
+  ")": increaseAngle
 };
 
 let TRANSFORMS = {
-  F: "F+-F-+",
-  X: "F[F+[X]]+[FX]-",
-  "-": "++[F--F]",
-  "+": "--[F++F]"
+  F: "F(−F+F",
+  "-": "A",
+  A: ")B",
+  B: "A"
 };
-let MAX_STEPS = 9;
+let MAX_STEPS = 13;
 
 /* ---------------------------------------------------------------------------*/
 let step: number = 0;
@@ -60,7 +66,7 @@ function setup() {
 }
 
 function draw() {
-  translate(windowWidth / 2.0, windowHeight);
+  translate(windowWidth / 2.0, windowHeight / 2.0);
   rotate(-Math.PI / 2.0);
   let newSystem: string = "";
   for (let part of system) {

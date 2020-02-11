@@ -43,27 +43,8 @@ var ColorHelper = (function () {
     };
     return ColorHelper;
 }());
-var Shapes = (function () {
-    function Shapes() {
-    }
-    Shapes.star = function (x, y, radius1, radius2, npoints) {
-        var angle = TWO_PI / npoints;
-        var halfAngle = angle / 2.0;
-        var points = new Array();
-        for (var a = 0; a < TWO_PI; a += angle) {
-            var sx = x + cos(a) * radius2;
-            var sy = y + sin(a) * radius2;
-            points.push(createVector(sx, sy));
-            sx = x + cos(a + halfAngle) * radius1;
-            sy = y + sin(a + halfAngle) * radius1;
-            points.push(createVector(sx, sy));
-        }
-        return points;
-    };
-    return Shapes;
-}());
 var forward = function () {
-    stroke("rgba(0,0,0,0.05)");
+    stroke("rgba(0,0,0,0.25)");
     line(0, 0, LINE_SIZE, 0);
     translate(LINE_SIZE, 0);
 };
@@ -71,23 +52,28 @@ var pushGlobal = function () { return push(); };
 var popGlobal = function () { return pop(); };
 var turnRight = function () { return rotate(ANGLE); };
 var turnLeft = function () { return rotate(-ANGLE); };
-var ANGLE = (15.0 * (Math.PI * 2.0)) / 360.0;
+var START = "F";
+var ANGLE = (90.0 * (Math.PI * 2.0)) / 360.0;
 var LINE_SIZE = 8.0;
-var system = "X";
+var system = START;
+var increaseAngle = function () { return (ANGLE += 0.01); };
+var decreaseAngle = function () { return (ANGLE -= 0.01); };
 var RULES = {
     F: forward,
     "+": turnRight,
     "-": turnLeft,
     "[": pushGlobal,
-    "]": popGlobal
+    "]": popGlobal,
+    "(": decreaseAngle,
+    ")": increaseAngle
 };
 var TRANSFORMS = {
-    F: "F+-F-+",
-    X: "F[F+[X]]+[FX]-",
-    "-": "++[F--F]",
-    "+": "--[F++F]"
+    F: "F(−F+F",
+    "-": "A",
+    A: ")B",
+    B: "A"
 };
-var MAX_STEPS = 9;
+var MAX_STEPS = 13;
 var step = 0;
 var executeRule = function (rule) {
     if (hasKey(RULES, rule)) {
@@ -108,7 +94,7 @@ function setup() {
     rectMode(CENTER);
 }
 function draw() {
-    translate(windowWidth / 2.0, windowHeight);
+    translate(windowWidth / 2.0, windowHeight / 2.0);
     rotate(-Math.PI / 2.0);
     var newSystem = "";
     for (var _i = 0, system_1 = system; _i < system_1.length; _i++) {
