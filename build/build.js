@@ -13,7 +13,7 @@ class Particle {
         this.velocity = { x: 0, y: 0 };
     }
     accelerate(v) {
-        this.velocity = addVec(this.velocity, v);
+        this.velocity = v;
     }
     move() {
         this.position = addVec(this.velocity, this.position);
@@ -34,12 +34,18 @@ class Attractor {
         return { x: -r.x * forceScalar, y: -r.y * forceScalar };
     }
 }
-const MAX_VELOCITY = 50.0;
-const PARTICLE_COUNT = 100;
+class Field {
+    forceAt(x, y, t) {
+        return {
+            x: Math.cos(noise(x * 0.01, y * 0.01) * 2 * Math.PI) / 10.0,
+            y: Math.sin(noise(x * 0.01, y * 0.01) * 2 * Math.PI) / 10.0
+        };
+    }
+}
+const MAX_VELOCITY = 10.0;
+const PARTICLE_COUNT = 10000;
 const FORCES = [
-    new Gravity(),
-    new Attractor({ x: 50, y: 0 }),
-    new Attractor({ x: 250, y: 100 })
+    new Field()
 ];
 let t = 0;
 let particles = Array.from(Array(PARTICLE_COUNT).keys(), () => new Particle({

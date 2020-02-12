@@ -22,7 +22,7 @@ class Particle {
   }
 
   accelerate(v: Vector) {
-    this.velocity = addVec(this.velocity, v);
+    this.velocity = v; //addVec(this.velocity, v);
   }
 
   move() {
@@ -50,12 +50,22 @@ class Attractor implements Force {
   }
 }
 
-const MAX_VELOCITY = 50.0;
-const PARTICLE_COUNT = 100;
+class Field implements Force {
+  forceAt(x: number, y: number, t: number) {
+    return {
+      x: Math.cos(noise(x * 0.01, y * 0.01) * 2 * Math.PI) / 10.0,
+      y: Math.sin(noise(x * 0.01, y * 0.01) * 2 * Math.PI) / 10.0
+    };
+  }
+}
+
+const MAX_VELOCITY = 10.0;
+const PARTICLE_COUNT = 10000;
 const FORCES = [
-  new Gravity(),
-  new Attractor({ x: 50, y: 0 }),
-  new Attractor({ x: 250, y: 100 })
+  // new Gravity(),
+  new Field()
+  // new Attractor({ x: 50, y: 0 }),
+  // new Attractor({ x: 250, y: 100 })
 ];
 let t = 0;
 

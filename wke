@@ -1,0 +1,5 @@
+
+W=540;N=200;t=0
+def setup():size(W,W);noStroke()
+def F(x,y):r=TAU;C=cos;n=noise(C(x*r+t)+C(y*r+PI/2)+C(t));d=sqrt(x*x+y*y+n*n);circle(x/d*N+W/2,y/d*N+W/2,n/d*2)
+def draw():global t;clear();[F(2./N*i-1,2./N*j-1)for i in range(N)for j in range(N)];t+=.1
