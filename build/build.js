@@ -63,20 +63,21 @@ var Shapes = (function () {
     return Shapes;
 }());
 var SCALE = 200.0;
+var NOISE = 1.0 / 1000000.0;
+var CHANGE_RATE = 1.0 / 300.0;
 var time = 0;
 function setup() {
-    frameRate(10);
+    frameRate(60);
     createCanvas(windowWidth, windowHeight);
     rectMode(CENTER);
 }
 function draw() {
-    translate(windowWidth / 2.0, windowHeight / 2.0);
     background(20, 20, 20);
-    console.log(_.range(10));
+    translate(windowWidth / 2.0, windowHeight / 2.0);
     stroke(255, 255, 255);
     for (var _i = 0, _a = _.range(1000); _i < _a.length; _i++) {
         var i = _a[_i];
-        point(Math.cos(i) * noise(i / 1000.0, time / 200.0) * SCALE, Math.sin(i) * SCALE * noise(i / 1000.0, time / 200.0));
+        point(Math.cos(i) * noise(i * time * NOISE, time * CHANGE_RATE) * SCALE, Math.sin(i) * noise(i * time * NOISE, time * CHANGE_RATE) * SCALE);
     }
     time += 1;
 }
