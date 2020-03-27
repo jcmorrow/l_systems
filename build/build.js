@@ -63,12 +63,14 @@ var Shapes = (function () {
     return Shapes;
 }());
 var CHANGE_RATE = 1.0 / 300.0;
-var NOISE = 1.0 / 1000.0;
-var PARTICLE_COUNT = 10000;
-var SCALE = 200.0;
+var FRAME_RATE = 30;
+var NOISE = 1.0 / 100.0;
+var PARTICLE_COUNT = 100;
+var SCALE = 20.0;
+var SPOKE_COUNT = 20;
 var time = 0;
 function setup() {
-    frameRate(60);
+    frameRate(30);
     createCanvas(windowWidth, windowHeight);
     rectMode(CENTER);
 }
@@ -76,9 +78,17 @@ function draw() {
     background(20, 20, 20);
     translate(windowWidth / 2.0, windowHeight / 2.0);
     stroke(255, 255, 255);
-    for (var _i = 0, _a = _.range(PARTICLE_COUNT); _i < _a.length; _i++) {
-        var i = _a[_i];
-        point(Math.cos(i) * noise(i * NOISE, time * NOISE) * SCALE, Math.sin(i) * noise(i * NOISE, time * NOISE) * SCALE);
+    for (var _i = 0, _a = _.range(SPOKE_COUNT); _i < _a.length; _i++) {
+        var theta = _a[_i];
+        for (var _b = 0, _c = _.range(PARTICLE_COUNT); _b < _c.length; _b++) {
+            var i = _c[_b];
+            var base = i * SCALE;
+            point(base +
+                0.5 *
+                    base *
+                    noise(Math.cos(theta) * 0.01, Math.sin(theta) * 0.01, time * NOISE), 0);
+        }
+        rotate((2.0 * Math.PI) / SPOKE_COUNT);
     }
     time += 1;
 }

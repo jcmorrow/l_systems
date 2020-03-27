@@ -1,12 +1,14 @@
 const CHANGE_RATE = 1.0 / 300.0;
-const NOISE = 1.0 / 1000.0;
-const PARTICLE_COUNT = 10000;
-const SCALE = 200.0;
+const FRAME_RATE = 30;
+const NOISE = 1.0 / 100.0;
+const PARTICLE_COUNT = 100;
+const SCALE = 20.0;
+const SPOKE_COUNT = 20;
 
 let time = 0;
 
 function setup() {
-  frameRate(60);
+  frameRate(30);
   createCanvas(windowWidth, windowHeight);
   rectMode(CENTER);
 }
@@ -17,11 +19,18 @@ function draw() {
 
   stroke(255, 255, 255);
 
-  for (let i of _.range(PARTICLE_COUNT)) {
-    point(
-      Math.cos(i) * noise(i * NOISE, time * NOISE) * SCALE,
-      Math.sin(i) * noise(i * NOISE, time * NOISE) * SCALE
-    );
+  for (let theta of _.range(SPOKE_COUNT)) {
+    for (let i of _.range(PARTICLE_COUNT)) {
+      let base = i * SCALE;
+      point(
+        base +
+          0.5 *
+            base *
+            noise(Math.cos(theta) * 0.01, Math.sin(theta) * 0.01, time * NOISE),
+        0
+      );
+    }
+    rotate((2.0 * Math.PI) / SPOKE_COUNT);
   }
 
   time += 1;
