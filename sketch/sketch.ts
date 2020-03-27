@@ -1,6 +1,8 @@
-const SCALE = 200.0;
-const NOISE = 1.0 / 1000000.0;
 const CHANGE_RATE = 1.0 / 300.0;
+const NOISE = 1.0 / 1000.0;
+const PARTICLE_COUNT = 10000;
+const SCALE = 200.0;
+
 let time = 0;
 
 function setup() {
@@ -15,10 +17,10 @@ function draw() {
 
   stroke(255, 255, 255);
 
-  for (let i of _.range(1000)) {
+  for (let i of _.range(PARTICLE_COUNT)) {
     point(
-      Math.cos(i) * noise(i * time * NOISE, time * CHANGE_RATE) * SCALE,
-      Math.sin(i) * noise(i * time * NOISE, time * CHANGE_RATE) * SCALE
+      Math.cos(i) * noise(i * NOISE, time * NOISE) * SCALE,
+      Math.sin(i) * noise(i * NOISE, time * NOISE) * SCALE
     );
   }
 

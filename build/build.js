@@ -62,9 +62,10 @@ var Shapes = (function () {
     };
     return Shapes;
 }());
-var SCALE = 200.0;
-var NOISE = 1.0 / 1000000.0;
 var CHANGE_RATE = 1.0 / 300.0;
+var NOISE = 1.0 / 1000.0;
+var PARTICLE_COUNT = 10000;
+var SCALE = 200.0;
 var time = 0;
 function setup() {
     frameRate(60);
@@ -75,9 +76,9 @@ function draw() {
     background(20, 20, 20);
     translate(windowWidth / 2.0, windowHeight / 2.0);
     stroke(255, 255, 255);
-    for (var _i = 0, _a = _.range(1000); _i < _a.length; _i++) {
+    for (var _i = 0, _a = _.range(PARTICLE_COUNT); _i < _a.length; _i++) {
         var i = _a[_i];
-        point(Math.cos(i) * noise(i * time * NOISE, time * CHANGE_RATE) * SCALE, Math.sin(i) * noise(i * time * NOISE, time * CHANGE_RATE) * SCALE);
+        point(Math.cos(i) * noise(i * NOISE, time * NOISE) * SCALE, Math.sin(i) * noise(i * NOISE, time * NOISE) * SCALE);
     }
     time += 1;
 }
