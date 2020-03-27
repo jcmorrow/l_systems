@@ -62,66 +62,22 @@ var Shapes = (function () {
     };
     return Shapes;
 }());
-var forward = function () {
-    line(0, 0, LINE_SIZE, 0);
-    translate(LINE_SIZE, 0);
-};
-var pushGlobal = function () { return push(); };
-var popGlobal = function () { return pop(); };
-var turnRight = function () { return rotate(ANGLE); };
-var turnLeft = function () { return rotate(-ANGLE); };
-var degreesToRadians = function (degrees) { return (degrees / 360.0) * Math.PI * 2.0; };
-var ANGLE = degreesToRadians(35.0);
-var LINE_SIZE = 5.0;
-var system = "X";
-var RULES = {
-    F: forward,
-    "+": turnRight,
-    "-": turnLeft,
-    "[": pushGlobal,
-    "]": popGlobal
-};
-var TRANSFORMS = {
-    F: "FFFX",
-    X: "F+[[+XFFX]-X]-F[-FX]+X"
-};
-var MAX_STEPS = 7;
-var step = 0;
-var executeRule = function (rule) {
-    if (hasKey(RULES, rule)) {
-        RULES[rule]();
-    }
-};
-var expandRule = function (rule) {
-    if (hasKey(TRANSFORMS, rule)) {
-        return TRANSFORMS[rule];
-    }
-    else {
-        return rule;
-    }
-};
+var SCALE = 200.0;
+var time = 0;
 function setup() {
-    frameRate(1);
+    frameRate(10);
     createCanvas(windowWidth, windowHeight);
     rectMode(CENTER);
 }
 function draw() {
     translate(windowWidth / 2.0, windowHeight / 2.0);
-    rotate(-Math.PI / 2.0);
-    var newSystem = "";
-    for (var _i = 0, system_1 = system; _i < system_1.length; _i++) {
-        var part = system_1[_i];
-        executeRule(part);
-        newSystem = newSystem + expandRule(part);
+    background(20, 20, 20);
+    console.log(_.range(10));
+    stroke(255, 255, 255);
+    for (var _i = 0, _a = _.range(1000); _i < _a.length; _i++) {
+        var i = _a[_i];
+        point(Math.cos(i) * noise(i / 1000.0, time / 200.0) * SCALE, Math.sin(i) * SCALE * noise(i / 1000.0, time / 200.0));
     }
-    system = newSystem;
-    step += 1;
-    console.log(step);
-    if (step >= MAX_STEPS) {
-        noLoop();
-    }
-}
-function hasKey(obj, key) {
-    return key in obj;
+    time += 1;
 }
 //# sourceMappingURL=build.js.map
