@@ -1,9 +1,6 @@
-const CHANGE_RATE = 1.0 / 300.0;
-const FRAME_RATE = 60;
-const SPOKE_COUNT = 100;
-const NOISE = (Math.PI / SPOKE_COUNT) * 2.0;
-const DIAMETER = 15.0;
-const GRAVITY = 0.1;
+const FRAME_RATE = 1;
+const LEVELS = 25;
+const SUBDIVISIONS = 1000;
 
 let time = 0;
 
@@ -14,43 +11,34 @@ function setup() {
 }
 
 function draw() {
+  let jump = 40;
+
+  setupFrame();
+  let points = _
+    .range(SUBDIVISIONS)
+    .map(i => ({ x: i / (SUBDIVISIONS * 1.0), y: i }));
+  let previousPoint = { x: 0, y: 0 };
+  _.range(LEVELS).map(level => {
+    points.forEach((point, i) => {
+      const nextPoint = {
+        x: point.x * windowWidth,
+        y:
+          noise(point.y / 200.0, level * 0.05) * (300.0 * (level / LEVELS) ** 2)
+      };
+      line(previousPoint.x, previousPoint.y, nextPoint.x, nextPoint.y);
+      previousPoint = nextPoint;
+    });
+    previousPoint = { x: 0, y: 0 };
+    translate(0, jump);
+    jump = jump * 0.75;
+  });
+}
+
+function setupFrame() {
   background(20, 20, 20);
-  translate(windowWidth / 2.0, windowHeight / 2.0 - 100.0);
-  rotate(Math.PI / 4.0);
+  translate(windowWidth, windowHeight * 0.95);
+  rotate(Math.PI);
 
   stroke(255, 255, 255);
   fill(20, 20, 20);
-
-  let points = _.range(SPOKE_COUNT).map(_ => [0, 0]);
-
-  for (let outer of _.range(45)) {
-    points = _.range(SPOKE_COUNT).map(i => {
-      let newDistance = [
-        coord(i, Math.cos) * noise(i * NOISE, outer * NOISE * 2.0) +
-          outer * GRAVITY,
-        coord(i, Math.sin) * noise(i * NOISE, outer * NOISE * 2.0) +
-          outer * GRAVITY
-      ];
-      return [points[i][0] + newDistance[0], points[i][1] + newDistance[1]];
-    });
-    for (let i of _.range(SPOKE_COUNT)) {
-      curve(
-        points[i][0],
-        points[i][1],
-        points[(i + 1) % SPOKE_COUNT][0],
-        points[(i + 1) % SPOKE_COUNT][1],
-        points[(i + 2) % SPOKE_COUNT][0],
-        points[(i + 2) % SPOKE_COUNT][1],
-        points[(i + 3) % SPOKE_COUNT][0],
-        points[(i + 3) % SPOKE_COUNT][1]
-      );
-    }
-  }
-
-  // time += CHANGE_RATE;
-}
-
-function coord(spoke: any, fn: any) {
-  let toFn = (spoke * Math.PI * 2.0) / SPOKE_COUNT;
-  return fn(toFn) * DIAMETER;
 }

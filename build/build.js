@@ -62,12 +62,9 @@ var Shapes = (function () {
     };
     return Shapes;
 }());
-var CHANGE_RATE = 1.0 / 300.0;
-var FRAME_RATE = 60;
-var SPOKE_COUNT = 100;
-var NOISE = (Math.PI / SPOKE_COUNT) * 2.0;
-var DIAMETER = 15.0;
-var GRAVITY = 0.1;
+var FRAME_RATE = 1;
+var LEVELS = 25;
+var SUBDIVISIONS = 1000;
 var time = 0;
 function setup() {
     frameRate(FRAME_RATE);
@@ -75,34 +72,31 @@ function setup() {
     rectMode(CENTER);
 }
 function draw() {
+    var jump = 40;
+    setupFrame();
+    var points = _
+        .range(SUBDIVISIONS)
+        .map(function (i) { return ({ x: i / (SUBDIVISIONS * 1.0), y: i }); });
+    var previousPoint = { x: 0, y: 0 };
+    _.range(LEVELS).map(function (level) {
+        points.forEach(function (point, i) {
+            var nextPoint = {
+                x: point.x * windowWidth,
+                y: noise(point.y / 200.0, level * 0.05) * (300.0 * Math.pow((level / LEVELS), 2))
+            };
+            line(previousPoint.x, previousPoint.y, nextPoint.x, nextPoint.y);
+            previousPoint = nextPoint;
+        });
+        previousPoint = { x: 0, y: 0 };
+        translate(0, jump);
+        jump = jump * 0.75;
+    });
+}
+function setupFrame() {
     background(20, 20, 20);
-    translate(windowWidth / 2.0, windowHeight / 2.0 - 100.0);
-    rotate(Math.PI / 4.0);
+    translate(windowWidth, windowHeight * 0.95);
+    rotate(Math.PI);
     stroke(255, 255, 255);
     fill(20, 20, 20);
-    var points = _.range(SPOKE_COUNT).map(function (_) { return [0, 0]; });
-    var _loop_1 = function (outer) {
-        points = _.range(SPOKE_COUNT).map(function (i) {
-            var newDistance = [
-                coord(i, Math.cos) * noise(i * NOISE, outer * NOISE * 2.0) +
-                    outer * GRAVITY,
-                coord(i, Math.sin) * noise(i * NOISE, outer * NOISE * 2.0) +
-                    outer * GRAVITY
-            ];
-            return [points[i][0] + newDistance[0], points[i][1] + newDistance[1]];
-        });
-        for (var _i = 0, _a = _.range(SPOKE_COUNT); _i < _a.length; _i++) {
-            var i = _a[_i];
-            curve(points[i][0], points[i][1], points[(i + 1) % SPOKE_COUNT][0], points[(i + 1) % SPOKE_COUNT][1], points[(i + 2) % SPOKE_COUNT][0], points[(i + 2) % SPOKE_COUNT][1], points[(i + 3) % SPOKE_COUNT][0], points[(i + 3) % SPOKE_COUNT][1]);
-        }
-    };
-    for (var _i = 0, _a = _.range(45); _i < _a.length; _i++) {
-        var outer = _a[_i];
-        _loop_1(outer);
-    }
-}
-function coord(spoke, fn) {
-    var toFn = (spoke * Math.PI * 2.0) / SPOKE_COUNT;
-    return fn(toFn) * DIAMETER;
 }
 //# sourceMappingURL=build.js.map
