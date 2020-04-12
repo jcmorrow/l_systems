@@ -1,14 +1,32 @@
-const CHANGE_RATE = 300.0;
-const FRAME_RATE = 1;
-const SEED = 2001;
-const SPOKE_COUNT = 200;
-const NOISE_SCALE = 0.1;
-const DIAMETER = 20.0;
-const GRAVITY = 0.25;
-const REPEAT_EVERY = SPOKE_COUNT * 2;
-const RINGS = 45;
-const MAX_ALPHA = 255;
-const MIN_ALPHA = 25;
+const CIRCLE_RADIUS = 400;
+const DOT_COUNT = 1000;
+const DOT_SIZE = 1.0;
+const FRAME_RATE = 60;
+const NOISE_SCALE = 0.01;
+const REPEAT_EVERY = 100;
+
+class Point {
+  theta: number;
+  distance: number;
+
+  constructor(theta: number, distance: number) {
+    this.theta = theta;
+    this.distance = distance;
+  }
+
+  points(): { x: number; y: number } {
+    return {
+      x: Math.cos(this.theta) * this.distance * CIRCLE_RADIUS,
+      y: Math.sin(this.theta) * this.distance * CIRCLE_RADIUS,
+    };
+  }
+}
+
+let time = 0;
+let dots: Point[];
+
+const randomPoint: () => Point = (): Point =>
+  new Point(random() * TWO_PI, random());
 
 function setup() {
   // noiseSeed(2020);
@@ -16,45 +34,33 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   rectMode(CENTER);
   background(20, 20, 20);
+
+  dots = _.range(DOT_COUNT).map(() => randomPoint());
 }
 
 function draw() {
-  translate(windowWidth / 2.0, windowHeight / 2.0 - 100.0);
-  rotate(Math.PI / 4.0);
+  translate(windowWidth / 2.0, windowHeight / 2.0);
 
-  fill(20, 20, 20);
+  fill(255, 255, 255);
   stroke(255, 255, 255);
+  background(20, 20, 20);
 
-  let points = _.range(SPOKE_COUNT).map((_) => [0, 0]);
+  dots.map((p) => {
+    const { x, y } = p.points();
+    const xDisplacement = displacement(p, time);
+    const yDisplacement = displacement(p, time);
+    ellipse(x + xDisplacement, y + yDisplacement, DOT_SIZE, DOT_SIZE);
+  });
 
-  for (let outer of _.range(RINGS)) {
-    stroke(255, 255, 255, 1.0 * map(outer, 0, RINGS, MAX_ALPHA, MIN_ALPHA)));
-    points = _.range(SPOKE_COUNT).map((i) => {
-      let newDistance = [
-        coord(i, Math.cos) * loopingNoise(i) + outer * GRAVITY,
-        coord(i, Math.sin) * loopingNoise(i) + outer * GRAVITY,
-      ];
-      return [points[i][0] + newDistance[0], points[i][1] + newDistance[1]];
-    });
-    for (let i of _.range(SPOKE_COUNT)) {
-      curve(
-        points[i][0],
-        points[i][1],
-        points[(i + 1) % SPOKE_COUNT][0],
-        points[(i + 1) % SPOKE_COUNT][1],
-        points[(i + 2) % SPOKE_COUNT][0],
-        points[(i + 2) % SPOKE_COUNT][1],
-        points[(i + 3) % SPOKE_COUNT][0],
-        points[(i + 3) % SPOKE_COUNT][1]
-      );
-    }
-  }
-  noLoop();
+  time = time + 0.001;
 }
 
-function coord(spoke: any, fn: any) {
-  let toFn = (spoke * Math.PI * 2.0) / SPOKE_COUNT;
-  return fn(toFn) * DIAMETER;
+function displacement(p: Point, time: number): number {
+  const { x, y } = p.points();
+  return (
+    noise(x * 0.0001, y * 0.0001, time) * (1 - p.distance) * CIRCLE_RADIUS -
+    CIRCLE_RADIUS / 2.0
+  );
 }
 
 function loopingNoise(iteration: number): number {

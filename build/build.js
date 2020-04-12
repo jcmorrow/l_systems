@@ -17,53 +17,54 @@ var Shapes = (function () {
     };
     return Shapes;
 }());
-var CHANGE_RATE = 300.0;
-var FRAME_RATE = 1;
-var SEED = 2001;
-var SPOKE_COUNT = 200;
-var NOISE_SCALE = 0.1;
-var DIAMETER = 20.0;
-var GRAVITY = 0.25;
-var REPEAT_EVERY = SPOKE_COUNT * 2;
-var RINGS = 45;
-var MAX_ALPHA = 255;
-var MIN_ALPHA = 25;
+var CIRCLE_RADIUS = 400;
+var DOT_COUNT = 1000;
+var DOT_SIZE = 1.0;
+var FRAME_RATE = 60;
+var NOISE_SCALE = 0.01;
+var REPEAT_EVERY = 100;
+var Point = (function () {
+    function Point(theta, distance) {
+        this.theta = theta;
+        this.distance = distance;
+    }
+    Point.prototype.points = function () {
+        return {
+            x: Math.cos(this.theta) * this.distance * CIRCLE_RADIUS,
+            y: Math.sin(this.theta) * this.distance * CIRCLE_RADIUS,
+        };
+    };
+    return Point;
+}());
+var time = 0;
+var dots;
+var randomPoint = function () {
+    return new Point(random() * TWO_PI, random());
+};
 function setup() {
     frameRate(FRAME_RATE);
     createCanvas(windowWidth, windowHeight);
     rectMode(CENTER);
     background(20, 20, 20);
+    dots = _.range(DOT_COUNT).map(function () { return randomPoint(); });
 }
 function draw() {
-    translate(windowWidth / 2.0, windowHeight / 2.0 - 100.0);
-    rotate(Math.PI / 4.0);
-    fill(20, 20, 20);
+    translate(windowWidth / 2.0, windowHeight / 2.0);
+    fill(255, 255, 255);
     stroke(255, 255, 255);
-    var points = _.range(SPOKE_COUNT).map(function (_) { return [0, 0]; });
-    var _loop_1 = function (outer) {
-        stroke(255, 255, 255, 1.0 * map(outer, 0, RINGS, MAX_ALPHA, MIN_ALPHA));
-        ;
-        points = _.range(SPOKE_COUNT).map(function (i) {
-            var newDistance = [
-                coord(i, Math.cos) * loopingNoise(i) + outer * GRAVITY,
-                coord(i, Math.sin) * loopingNoise(i) + outer * GRAVITY,
-            ];
-            return [points[i][0] + newDistance[0], points[i][1] + newDistance[1]];
-        });
-        for (var _i = 0, _a = _.range(SPOKE_COUNT); _i < _a.length; _i++) {
-            var i = _a[_i];
-            curve(points[i][0], points[i][1], points[(i + 1) % SPOKE_COUNT][0], points[(i + 1) % SPOKE_COUNT][1], points[(i + 2) % SPOKE_COUNT][0], points[(i + 2) % SPOKE_COUNT][1], points[(i + 3) % SPOKE_COUNT][0], points[(i + 3) % SPOKE_COUNT][1]);
-        }
-    };
-    for (var _i = 0, _a = _.range(RINGS); _i < _a.length; _i++) {
-        var outer = _a[_i];
-        _loop_1(outer);
-    }
-    noLoop();
+    background(20, 20, 20);
+    dots.map(function (p) {
+        var _a = p.points(), x = _a.x, y = _a.y;
+        var xDisplacement = displacement(p, time);
+        var yDisplacement = displacement(p, time);
+        ellipse(x + xDisplacement, y + yDisplacement, DOT_SIZE, DOT_SIZE);
+    });
+    time = time + 0.001;
 }
-function coord(spoke, fn) {
-    var toFn = (spoke * Math.PI * 2.0) / SPOKE_COUNT;
-    return fn(toFn) * DIAMETER;
+function displacement(p, time) {
+    var _a = p.points(), x = _a.x, y = _a.y;
+    return (noise(x * 0.0001, y * 0.0001, time) * (1 - p.distance) * CIRCLE_RADIUS -
+        CIRCLE_RADIUS / 2.0);
 }
 function loopingNoise(iteration) {
     var answer = noise(NOISE_SCALE * octave(iteration) * 0.1, Math.cos(TWO_PI * octave(iteration)) * 2, Math.sin(TWO_PI * octave(iteration)) * 2);
