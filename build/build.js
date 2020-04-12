@@ -65,7 +65,7 @@ var Shapes = (function () {
 var CHANGE_RATE = 1.0 / 300.0;
 var FRAME_RATE = 60;
 var SPOKE_COUNT = 100;
-var NOISE = (Math.PI / SPOKE_COUNT) * 2.0;
+var NOISE = (Math.PI * 0.0001) / SPOKE_COUNT;
 var DIAMETER = 15.0;
 var GRAVITY = 0.1;
 var time = 0;
@@ -84,12 +84,8 @@ function draw() {
     var _loop_1 = function (outer) {
         points = _.range(SPOKE_COUNT).map(function (i) {
             var newDistance = [
-                coord(i, Math.cos) *
-                    noise(i * NOISE, outer * NOISE * 2.0, RADIUS * Math.cos((TWO_PI * i) / SPOKE_COUNT)) +
-                    outer * GRAVITY,
-                coord(i, Math.sin) *
-                    noise(i * NOISE, outer * NOISE * 2.0, Math.sin((TWO_PI * i) / SPOKE_COUNT)) +
-                    outer * GRAVITY
+                coord(i, Math.cos) * noise(i, outer) + outer * GRAVITY,
+                coord(i, Math.sin) * noise(i, outer) + outer * GRAVITY,
             ];
             return [points[i][0] + newDistance[0], points[i][1] + newDistance[1]];
         });
@@ -106,5 +102,9 @@ function draw() {
 function coord(spoke, fn) {
     var toFn = (spoke * Math.PI * 2.0) / SPOKE_COUNT;
     return fn(toFn) * DIAMETER;
+}
+function noise(outerRadius, iteration) {
+    return 1.0;
+    return noise(iteration * NOISE, outerRadius * NOISE, outerRadius * NOISE * Math.cos((TWO_PI * iteration) / SPOKE_COUNT));
 }
 //# sourceMappingURL=build.js.map
