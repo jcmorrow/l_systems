@@ -17,30 +17,31 @@ var Shapes = (function () {
     };
     return Shapes;
 }());
-var CHANGE_RATE = 1.0 / 300.0;
-var FRAME_RATE = 60;
+var CHANGE_RATE = 300.0;
+var FRAME_RATE = 1;
+var SEED = 100;
 var SPOKE_COUNT = 100;
-var NOISE = Math.PI / SPOKE_COUNT;
-var DIAMETER = 15.0;
-var GRAVITY = 0.1;
-var time = 0;
+var NOISE_SCALE = 0.1;
+var DIAMETER = 30.0;
+var GRAVITY = 0.05;
+var REPEAT_EVERY = SPOKE_COUNT / 1.0;
 function setup() {
+    noiseSeed(SEED);
     frameRate(FRAME_RATE);
     createCanvas(windowWidth, windowHeight);
     rectMode(CENTER);
+    background(20, 20, 20);
 }
 function draw() {
-    background(20, 20, 20);
     translate(windowWidth / 2.0, windowHeight / 2.0 - 100.0);
     rotate(Math.PI / 4.0);
     stroke(255, 255, 255);
-    fill(20, 20, 20);
     var points = _.range(SPOKE_COUNT).map(function (_) { return [0, 0]; });
     var _loop_1 = function (outer) {
         points = _.range(SPOKE_COUNT).map(function (i) {
             var newDistance = [
-                coord(i, Math.cos) * customNoise(i, outer) + outer * GRAVITY,
-                coord(i, Math.sin) * customNoise(i, outer) + outer * GRAVITY,
+                coord(i, Math.cos) * loopingNoise(i) + outer * GRAVITY,
+                coord(i, Math.sin) * loopingNoise(i) + outer * GRAVITY,
             ];
             return [points[i][0] + newDistance[0], points[i][1] + newDistance[1]];
         });
@@ -53,12 +54,17 @@ function draw() {
         var outer = _a[_i];
         _loop_1(outer);
     }
+    noLoop();
 }
 function coord(spoke, fn) {
     var toFn = (spoke * Math.PI * 2.0) / SPOKE_COUNT;
     return fn(toFn) * DIAMETER;
 }
-function customNoise(outerRadius, iteration) {
-    return noise(iteration * NOISE, outerRadius * NOISE * Math.cos((TWO_PI * iteration) / SPOKE_COUNT), outerRadius * NOISE * Math.sin((TWO_PI * iteration) / SPOKE_COUNT));
+function loopingNoise(iteration) {
+    var answer = noise(NOISE_SCALE * octave(iteration), NOISE_SCALE * Math.cos(TWO_PI * octave(iteration)), NOISE_SCALE * Math.sin(TWO_PI * octave(iteration)));
+    return answer;
 }
+var octave = function (i) {
+    return (i % REPEAT_EVERY) / REPEAT_EVERY;
+};
 //# sourceMappingURL=build.js.map
