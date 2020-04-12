@@ -19,14 +19,16 @@ var Shapes = (function () {
 }());
 var CHANGE_RATE = 300.0;
 var FRAME_RATE = 1;
-var SEED = 100;
-var SPOKE_COUNT = 100;
+var SEED = 2001;
+var SPOKE_COUNT = 200;
 var NOISE_SCALE = 0.1;
-var DIAMETER = 30.0;
-var GRAVITY = 0.05;
-var REPEAT_EVERY = SPOKE_COUNT / 1.0;
+var DIAMETER = 20.0;
+var GRAVITY = 0.25;
+var REPEAT_EVERY = SPOKE_COUNT * 2;
+var RINGS = 45;
+var MAX_ALPHA = 255;
+var MIN_ALPHA = 25;
 function setup() {
-    noiseSeed(SEED);
     frameRate(FRAME_RATE);
     createCanvas(windowWidth, windowHeight);
     rectMode(CENTER);
@@ -35,9 +37,12 @@ function setup() {
 function draw() {
     translate(windowWidth / 2.0, windowHeight / 2.0 - 100.0);
     rotate(Math.PI / 4.0);
+    fill(20, 20, 20);
     stroke(255, 255, 255);
     var points = _.range(SPOKE_COUNT).map(function (_) { return [0, 0]; });
     var _loop_1 = function (outer) {
+        stroke(255, 255, 255, 1.0 * map(outer, 0, RINGS, MAX_ALPHA, MIN_ALPHA));
+        ;
         points = _.range(SPOKE_COUNT).map(function (i) {
             var newDistance = [
                 coord(i, Math.cos) * loopingNoise(i) + outer * GRAVITY,
@@ -50,7 +55,7 @@ function draw() {
             curve(points[i][0], points[i][1], points[(i + 1) % SPOKE_COUNT][0], points[(i + 1) % SPOKE_COUNT][1], points[(i + 2) % SPOKE_COUNT][0], points[(i + 2) % SPOKE_COUNT][1], points[(i + 3) % SPOKE_COUNT][0], points[(i + 3) % SPOKE_COUNT][1]);
         }
     };
-    for (var _i = 0, _a = _.range(45); _i < _a.length; _i++) {
+    for (var _i = 0, _a = _.range(RINGS); _i < _a.length; _i++) {
         var outer = _a[_i];
         _loop_1(outer);
     }
@@ -61,7 +66,7 @@ function coord(spoke, fn) {
     return fn(toFn) * DIAMETER;
 }
 function loopingNoise(iteration) {
-    var answer = noise(NOISE_SCALE * octave(iteration), NOISE_SCALE * Math.cos(TWO_PI * octave(iteration)), NOISE_SCALE * Math.sin(TWO_PI * octave(iteration)));
+    var answer = noise(NOISE_SCALE * octave(iteration) * 0.1, Math.cos(TWO_PI * octave(iteration)) * 2, Math.sin(TWO_PI * octave(iteration)) * 2);
     return answer;
 }
 var octave = function (i) {
