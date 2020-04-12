@@ -25,10 +25,22 @@ function draw() {
 
   for (let outer of _.range(45)) {
     points = _.range(SPOKE_COUNT).map(i => {
+      // noise.eval(scale*x,scale*y)
+      // noise.eval(scale*x,scale*y,radius*cos(TWO_PI*t),radius*sin(TWO_PI*t))
       let newDistance = [
-        coord(i, Math.cos) * noise(i * NOISE, outer * NOISE * 2.0) +
+        coord(i, Math.cos) *
+          noise(
+            i * NOISE,
+            outer * NOISE * 2.0,
+            RADIUS * Math.cos((TWO_PI * i) / SPOKE_COUNT)
+          ) +
           outer * GRAVITY,
-        coord(i, Math.sin) * noise(i * NOISE, outer * NOISE * 2.0) +
+        coord(i, Math.sin) *
+          noise(
+            i * NOISE,
+            outer * NOISE * 2.0,
+            Math.sin((TWO_PI * i) / SPOKE_COUNT)
+          ) +
           outer * GRAVITY
       ];
       return [points[i][0] + newDistance[0], points[i][1] + newDistance[1]];
