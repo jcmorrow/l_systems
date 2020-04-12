@@ -1,48 +1,3 @@
-var ColorHelper = (function () {
-    function ColorHelper() {
-    }
-    ColorHelper.getColorVector = function (c) {
-        return createVector(red(c), green(c), blue(c));
-    };
-    ColorHelper.rainbowColorBase = function () {
-        return [
-            color('red'),
-            color('orange'),
-            color('yellow'),
-            color('green'),
-            color(38, 58, 150),
-            color('indigo'),
-            color('violet')
-        ];
-    };
-    ColorHelper.getColorsArray = function (total, baseColorArray) {
-        var _this = this;
-        if (baseColorArray === void 0) { baseColorArray = null; }
-        if (baseColorArray == null) {
-            baseColorArray = ColorHelper.rainbowColorBase();
-        }
-        var rainbowColors = baseColorArray.map(function (x) { return _this.getColorVector(x); });
-        ;
-        var colours = new Array();
-        for (var i = 0; i < total; i++) {
-            var colorPosition = i / total;
-            var scaledColorPosition = colorPosition * (rainbowColors.length - 1);
-            var colorIndex = Math.floor(scaledColorPosition);
-            var colorPercentage = scaledColorPosition - colorIndex;
-            var nameColor = this.getColorByPercentage(rainbowColors[colorIndex], rainbowColors[colorIndex + 1], colorPercentage);
-            colours.push(color(nameColor.x, nameColor.y, nameColor.z));
-        }
-        return colours;
-    };
-    ColorHelper.getColorByPercentage = function (firstColor, secondColor, percentage) {
-        var firstColorCopy = firstColor.copy();
-        var secondColorCopy = secondColor.copy();
-        var deltaColor = secondColorCopy.sub(firstColorCopy);
-        var scaledDeltaColor = deltaColor.mult(percentage);
-        return firstColorCopy.add(scaledDeltaColor);
-    };
-    return ColorHelper;
-}());
 var Shapes = (function () {
     function Shapes() {
     }
@@ -65,7 +20,7 @@ var Shapes = (function () {
 var CHANGE_RATE = 1.0 / 300.0;
 var FRAME_RATE = 60;
 var SPOKE_COUNT = 100;
-var NOISE = (Math.PI * 0.0001) / SPOKE_COUNT;
+var NOISE = Math.PI / SPOKE_COUNT;
 var DIAMETER = 15.0;
 var GRAVITY = 0.1;
 var time = 0;
@@ -84,8 +39,8 @@ function draw() {
     var _loop_1 = function (outer) {
         points = _.range(SPOKE_COUNT).map(function (i) {
             var newDistance = [
-                coord(i, Math.cos) * noise(i, outer) + outer * GRAVITY,
-                coord(i, Math.sin) * noise(i, outer) + outer * GRAVITY,
+                coord(i, Math.cos) * customNoise(i, outer) + outer * GRAVITY,
+                coord(i, Math.sin) * customNoise(i, outer) + outer * GRAVITY,
             ];
             return [points[i][0] + newDistance[0], points[i][1] + newDistance[1]];
         });
@@ -103,8 +58,7 @@ function coord(spoke, fn) {
     var toFn = (spoke * Math.PI * 2.0) / SPOKE_COUNT;
     return fn(toFn) * DIAMETER;
 }
-function noise(outerRadius, iteration) {
-    return 1.0;
-    return noise(iteration * NOISE, outerRadius * NOISE, outerRadius * NOISE * Math.cos((TWO_PI * iteration) / SPOKE_COUNT));
+function customNoise(outerRadius, iteration) {
+    return noise(iteration * NOISE, outerRadius * NOISE * Math.cos((TWO_PI * iteration) / SPOKE_COUNT), outerRadius * NOISE * Math.sin((TWO_PI * iteration) / SPOKE_COUNT));
 }
 //# sourceMappingURL=build.js.map

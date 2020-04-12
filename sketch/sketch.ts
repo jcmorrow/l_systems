@@ -1,7 +1,7 @@
 const CHANGE_RATE = 1.0 / 300.0;
 const FRAME_RATE = 60;
 const SPOKE_COUNT = 100;
-const NOISE = (Math.PI * 0.0001) / SPOKE_COUNT;
+const NOISE = Math.PI / SPOKE_COUNT;
 const DIAMETER = 15.0;
 const GRAVITY = 0.1;
 
@@ -26,8 +26,8 @@ function draw() {
   for (let outer of _.range(45)) {
     points = _.range(SPOKE_COUNT).map((i) => {
       let newDistance = [
-        coord(i, Math.cos) * noise(i, outer) + outer * GRAVITY,
-        coord(i, Math.sin) * noise(i, outer) + outer * GRAVITY,
+        coord(i, Math.cos) * customNoise(i, outer) + outer * GRAVITY,
+        coord(i, Math.sin) * customNoise(i, outer) + outer * GRAVITY,
       ];
       return [points[i][0] + newDistance[0], points[i][1] + newDistance[1]];
     });
@@ -53,12 +53,10 @@ function coord(spoke: any, fn: any) {
   return fn(toFn) * DIAMETER;
 }
 
-function noise(outerRadius: number, iteration: number) {
-  return 1.0;
+function customNoise(outerRadius: number, iteration: number) {
   return noise(
     iteration * NOISE,
-    outerRadius * NOISE,
-    outerRadius * NOISE * Math.cos((TWO_PI * iteration) / SPOKE_COUNT)
-    // outerRadius * NOISE * Math.sin((TWO_PI * iteration) / SPOKE_COUNT)
+    outerRadius * NOISE * Math.cos((TWO_PI * iteration) / SPOKE_COUNT),
+    outerRadius * NOISE * Math.sin((TWO_PI * iteration) / SPOKE_COUNT)
   );
 }
