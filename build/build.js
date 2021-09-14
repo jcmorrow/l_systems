@@ -62,34 +62,34 @@ var Shapes = (function () {
     };
     return Shapes;
 }());
-var forward = function () {
-    line(0, 0, LINE_SIZE, 0);
-    translate(LINE_SIZE, 0);
+var forward = function (lineSize) {
+    line(0, 0, lineSize, 0);
+    translate(lineSize, 0);
 };
 var pushGlobal = function () { return push(); };
 var popGlobal = function () { return pop(); };
-var turnRight = function () { return rotate(ANGLE); };
-var turnLeft = function () { return rotate(-ANGLE); };
-var ANGLE = (25.0 * (Math.PI * 2.0)) / 360.0;
+var turnRight = function (angle) { return rotate(angle); };
+var turnLeft = function (angle) { return rotate(-angle); };
+var toDegrees = function (angle) { return (angle * (Math.PI * 2.0)) / 360.0; };
+var ANGLE = toDegrees(25);
 var LINE_SIZE = 5.0;
 var system = "X";
-var RULES = {
-    F: forward,
-    "+": turnRight,
-    "-": turnLeft,
-    "[": pushGlobal,
-    "]": popGlobal
-};
+var RULES = [
+    { name: "F", do: forward, args: [LINE_SIZE] },
+    { name: "+", do: turnRight, args: [ANGLE] },
+    { name: "-", do: turnLeft, args: [ANGLE] },
+    { name: "[", do: pushGlobal, args: [] },
+    { name: "]", do: popGlobal, args: [] },
+];
 var TRANSFORMS = {
     F: "FF",
-    X: "F+[[X]-X]-F[-FX]+X"
+    X: "F+[[X]-X]-F[-FX]+X",
 };
-var MAX_STEPS = 20;
+var MAX_STEPS = 10;
 var step = 0;
-var executeRule = function (rule) {
-    if (hasKey(RULES, rule)) {
-        RULES[rule]();
-    }
+var executeRule = function (ruleName) {
+    var rule = RULES.find(function (r) { return r.name == ruleName; });
+    rule.do.apply(rule, rule["args"]);
 };
 var expandRule = function (rule) {
     if (hasKey(TRANSFORMS, rule)) {

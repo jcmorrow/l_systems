@@ -1,44 +1,47 @@
-const forward = () => {
-  line(0, 0, LINE_SIZE, 0);
-  translate(LINE_SIZE, 0);
+const forward = (lineSize: number) => {
+  line(0, 0, lineSize, 0);
+  translate(lineSize, 0);
 };
 const pushGlobal = () => push();
 const popGlobal = () => pop();
-const turnRight = () => rotate(ANGLE);
-const turnLeft = () => rotate(-ANGLE);
+const turnRight = (angle: number) => rotate(angle);
+const turnLeft = (angle: number) => rotate(-angle);
 
 /* ---------------------------------------------------------------------------*/
 
-//    variables : X F
+// variables : X F
 // constants : + − [ ]
 // start : X
 // rules : (X → F+[[X]-X]-F[-FX]+X), (F → FF)
 // angle : 25°
 
-const ANGLE = (25.0 * (Math.PI * 2.0)) / 360.0;
+const toDegrees = (angle: number) => (angle * (Math.PI * 2.0)) / 360.0;
+
+const ANGLE = toDegrees(25);
 const LINE_SIZE = 5.0;
+
 let system: string = "X";
 
-let RULES = {
-  F: forward,
-  "+": turnRight,
-  "-": turnLeft,
-  "[": pushGlobal,
-  "]": popGlobal
-};
+let RULES = [
+  { name: "F", do: forward, args: [LINE_SIZE] },
+  { name: "+", do: turnRight, args: [ANGLE] },
+  { name: "-", do: turnLeft, args: [ANGLE] },
+  { name: "[", do: pushGlobal, args: [] },
+  { name: "]", do: popGlobal, args: [] },
+];
+
 let TRANSFORMS = {
   F: "FF",
-  X: "F+[[X]-X]-F[-FX]+X"
+  X: "F+[[X]-X]-F[-FX]+X",
 };
-let MAX_STEPS = 20;
+let MAX_STEPS = 10;
 
 /* ---------------------------------------------------------------------------*/
 let step: number = 0;
 
-let executeRule = (rule: string) => {
-  if (hasKey(RULES, rule)) {
-    RULES[rule]();
-  }
+let executeRule = (ruleName: string) => {
+  const rule = RULES.find((r) => r.name == ruleName);
+  rule.do(...rule["args"]);
 };
 
 let expandRule: (rule: string) => string = (rule: string) => {
